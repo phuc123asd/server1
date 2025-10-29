@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function LandingPage() {
   const handleLogin = () => {
-    window.location.href = '/auth/login'
+    window.location.href = '/auth/replit_auth'
   }
 
   return (

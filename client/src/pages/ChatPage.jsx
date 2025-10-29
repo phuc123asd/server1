@@ -51,7 +51,7 @@ export default function ChatPage({ user }) {
   }
 
   const handleLogout = () => {
-    window.location.href = '/auth/logout'
+    window.location.href = '/auth/replit_auth/logout'
   }
 
   return (
