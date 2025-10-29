@@ -1,34 +1,35 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import LoginPage from './pages/LoginPage'
+import LandingPage from './pages/LandingPage'
 import ChatPage from './pages/ChatPage'
-import './App.css'
 
 const queryClient = new QueryClient()
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('isLoggedIn') === 'true'
-  })
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user')
-    return savedUser ? JSON.parse(savedUser) : null
-  })
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  const handleLogin = (userData) => {
-    setIsLoggedIn(true)
-    setUser(userData)
-    localStorage.setItem('isLoggedIn', 'true')
-    localStorage.setItem('user', JSON.stringify(userData))
-  }
+  useEffect(() => {
+    fetch('/api/user', {
+      credentials: 'include'
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        setUser(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
+  }, [])
 
-  const handleLogout = () => {
-    setIsLoggedIn(false)
-    setUser(null)
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('user')
-    localStorage.removeItem('conversationId')
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-red-500">
+        <div className="text-white text-2xl">Đang tải...</div>
+      </div>
+    )
   }
 
   return (
@@ -36,24 +37,24 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route 
-            path="/login" 
+            path="/" 
             element={
-              isLoggedIn ? 
-              <Navigate to="/chat" replace /> : 
-              <LoginPage onLogin={handleLogin} />
+              user ? 
+              <ChatPage user={user} /> : 
+              <LandingPage />
             } 
           />
           <Route 
             path="/chat" 
             element={
-              isLoggedIn ? 
-              <ChatPage user={user} onLogout={handleLogout} /> : 
-              <Navigate to="/login" replace />
+              user ? 
+              <ChatPage user={user} /> : 
+              <Navigate to="/" replace />
             } 
           />
           <Route 
-            path="/" 
-            element={<Navigate to={isLoggedIn ? "/chat" : "/login"} replace />} 
+            path="*" 
+            element={<Navigate to="/" replace />} 
           />
         </Routes>
       </BrowserRouter>

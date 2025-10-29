@@ -1,13 +1,16 @@
 #!/bin/bash
 
-echo "Starting backend server..."
-node index.js &
+echo "Starting Python backend..."
+python main.py &
 BACKEND_PID=$!
 
-echo "Waiting for backend to start..."
+# Wait a bit for backend to start
 sleep 3
 
-echo "Starting frontend server..."
-cd client && npm run dev
+# Start frontend
+echo "Starting frontend..."
+cd client && npm run dev &
+FRONTEND_PID=$!
 
-kill $BACKEND_PID 2>/dev/null
+# Wait for both processes
+wait $BACKEND_PID $FRONTEND_PID

@@ -1,6 +1,6 @@
-def main():
-    print("Hello from repl-nix-workspace!")
-
+# Replit Auth Blueprint - Main entry point
+from app import app
+import routes  # noqa: F401
 
 if __name__ == "__main__":
-    main()
+    app.run(host="0.0.0.0", port=5000, debug=True)

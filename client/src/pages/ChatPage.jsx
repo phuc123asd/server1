@@ -1,33 +1,10 @@
-import { useState, useRef, useEffect } from 'react'
-import axios from 'axios'
-import './ChatPage.css'
+import React, { useState, useRef, useEffect } from 'react'
 
-export default function ChatPage({ user, onLogout }) {
+export default function ChatPage({ user }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [conversationId] = useState(() => {
-    const saved = localStorage.getItem('conversationId')
-    return saved || `conv_${user.id}_${Date.now()}`
-  })
+  const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef(null)
-
-  useEffect(() => {
-    localStorage.setItem('conversationId', conversationId)
-    
-    const loadHistory = async () => {
-      try {
-        const response = await axios.get(`/api/history/${conversationId}`)
-        if (response.data.messages && response.data.messages.length > 0) {
-          setMessages(response.data.messages)
-        }
-      } catch (error) {
-        console.error('Failed to load history:', error)
-      }
-    }
-    
-    loadHistory()
-  }, [conversationId])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -37,145 +14,162 @@ export default function ChatPage({ user, onLogout }) {
     scrollToBottom()
   }, [messages])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
+  const handleSend = async () => {
+    if (!input.trim() || loading) return
 
-    const userMessage = {
-      id: Date.now(),
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date().toISOString()
-    }
-
-    setMessages(prev => [...prev, userMessage])
+    const userMessage = input.trim()
     setInput('')
-    setIsLoading(true)
+    
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }])
+    setLoading(true)
 
     try {
-      const response = await axios.post('/api/chat', {
-        message: userMessage.content,
-        conversationId,
-        userId: user.id,
-        userName: user.name
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ message: userMessage })
       })
 
-      const assistantMessage = {
-        id: Date.now() + 1,
-        role: 'assistant',
-        content: response.data.reply,
-        timestamp: new Date().toISOString()
+      if (!response.ok) {
+        throw new Error('Failed to send message')
       }
 
-      setMessages(prev => [...prev, assistantMessage])
+      const data = await response.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
     } catch (error) {
-      console.error('Error:', error)
-      const errorMessage = {
-        id: Date.now() + 1,
-        role: 'assistant',
-        content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.',
-        timestamp: new Date().toISOString(),
-        isError: true
-      }
-      setMessages(prev => [...prev, errorMessage])
+      console.error('Chat error:', error)
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.' 
+      }])
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const handleNewChat = () => {
-    setMessages([])
-    const newConvId = `conv_${user.id}_${Date.now()}`
-    localStorage.setItem('conversationId', newConvId)
-    window.location.reload()
+  const handleLogout = () => {
+    window.location.href = '/auth/logout'
   }
 
   return (
-    <div className="chat-page">
-      <div className="chat-header">
-        <div className="header-left">
-          <h1>🤖 Phúc GPT</h1>
-          <span className="user-info">Xin chào, {user.name}!</span>
-        </div>
-        <div className="header-right">
-          <button className="new-chat-btn" onClick={handleNewChat}>
-            ➕ Cuộc trò chuyện mới
-          </button>
-          <button className="logout-btn" onClick={onLogout}>
-            Đăng xuất
-          </button>
-        </div>
-      </div>
-
-      <div className="chat-container">
-        <div className="messages-container">
-          {messages.length === 0 && (
-            <div className="welcome-message">
-              <h2>👋 Chào mừng bạn đến với Phúc GPT!</h2>
-              <p>Tôi là trợ lý AI thông minh, sẵn sàng hỗ trợ bạn.</p>
-              <div className="suggestions">
-                <button onClick={() => setInput('Bạn có thể giúp gì cho tôi?')}>
-                  Bạn có thể giúp gì cho tôi?
-                </button>
-                <button onClick={() => setInput('Giải thích về AI là gì?')}>
-                  Giải thích về AI là gì?
-                </button>
-                <button onClick={() => setInput('Cho tôi một vài mẹo học lập trình')}>
-                  Cho tôi mẹo học lập trình
-                </button>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col">
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Phúc GPT</h1>
+                <p className="text-sm text-gray-500">AI Assistant</p>
               </div>
             </div>
-          )}
 
-          {messages.map((message) => (
-            <div key={message.id} className={`message ${message.role}`}>
-              <div className="message-avatar">
-                {message.role === 'user' ? '👤' : '🤖'}
-              </div>
-              <div className="message-content">
-                <div className="message-text">{message.content}</div>
-                {message.timestamp && (
-                  <div className="message-time">
-                    {new Date(message.timestamp).toLocaleTimeString('vi-VN')}
-                  </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                {user.profile_image_url && (
+                  <img 
+                    src={user.profile_image_url} 
+                    alt="Profile" 
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
                 )}
+                <div className="hidden sm:block">
+                  <p className="text-sm font-medium text-gray-900">
+                    {user.first_name || user.email || 'User'}
+                  </p>
+                  {user.email && (
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  )}
+                </div>
               </div>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Đăng xuất
+              </button>
             </div>
-          ))}
+          </div>
+        </div>
+      </header>
 
-          {isLoading && (
-            <div className="message assistant">
-              <div className="message-avatar">🤖</div>
-              <div className="message-content">
-                <div className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
+      <div className="flex-1 overflow-y-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {messages.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Xin chào! Tôi có thể giúp gì cho bạn?
+              </h3>
+              <p className="text-gray-500">
+                Hãy bắt đầu cuộc trò chuyện bằng cách nhập câu hỏi bên dưới
+              </p>
+            </div>
+          ) : (
+            messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-3xl px-6 py-4 rounded-2xl ${
+                    message.role === 'user'
+                      ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white'
+                      : 'bg-white shadow-md text-gray-800 border border-gray-100'
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                </div>
+              </div>
+            ))
+          )}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-white shadow-md px-6 py-4 rounded-2xl border border-gray-100">
+                <div className="flex space-x-2">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
           )}
-
           <div ref={messagesEndRef} />
         </div>
+      </div>
 
-        <form className="input-container" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Nhập tin nhắn của bạn..."
-            className="chat-input"
-            disabled={isLoading}
-          />
-          <button 
-            type="submit" 
-            className="send-button"
-            disabled={!input.trim() || isLoading}
-          >
-            {isLoading ? '⏳' : '📤'}
-          </button>
-        </form>
+      <div className="bg-white border-t border-gray-200 px-4 py-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center space-x-4">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+              placeholder="Nhập câu hỏi của bạn..."
+              className="flex-1 px-6 py-4 bg-gray-100 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              disabled={loading}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || loading}
+              className="px-8 py-4 bg-gradient-to-br from-purple-600 to-pink-600 text-white rounded-full hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+            >
+              {loading ? 'Đang gửi...' : 'Gửi'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
