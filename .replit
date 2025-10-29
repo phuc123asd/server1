@@ -1,10 +1,11 @@
 modules = ["nodejs-20", "python-3.11"]
 [agent]
 expertMode = true
+integrations = ["python_log_in_with_replit:1.0.0", "python_database:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["chromium"]
+packages = ["chromium", "gitFull", "playwright-driver"]
 
 [workflows]
 runButton = "Project"
@@ -33,10 +34,6 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 46085
-externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"
