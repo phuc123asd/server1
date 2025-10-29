@@ -1,4 +1,4 @@
-# Phúc GPT - AI Chat Assistant
+# Football GPT - AI Chat Assistant
 
 ## Tổng quan dự án
 Ứng dụng chatbot AI với RAG (Retrieval Augmented Generation) - **Migrated to Python**
@@ -25,16 +25,6 @@
 - SESSION_SECRET - Flask session secret (✅ Auto)
 - REPL_ID - Replit ID for auth (✅ Auto)
 
-### Cần cấu hình thủ công
-```
-# OpenAI API (Required for chat)
-OPENAI_API_KEY=sk-...
-
-# AstraDB (Required for RAG)
-ASTRA_DB_ENDPOINT=https://....apps.astra.datastax.com
-ASTRA_DB_APPLICATION_TOKEN=AstraCS:...
-ASTRA_DB_COLLECTION=phucgpt
-```
 
 ## Lịch sử thay đổi
 

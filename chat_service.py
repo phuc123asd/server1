@@ -54,7 +54,7 @@ class ChatService:
             logging.info(f'Step 4: Found {len(texts)} relevant chunks')
             
             if not texts:
-                return "Không tìm thấy ngữ cảnh liên quan."
+                return "Không tìm thấy ngữ cảnh liên quan." 
             
             return '\n\n---\n\n'.join(texts)
             
@@ -70,11 +70,15 @@ class ChatService:
             logging.info(f'Retrieved context preview: {context[:100]}...')
             
             # Create system prompt with context
-            system_prompt = f"""Tên bạn là Phúc GPT. Dựa trên ngữ cảnh sau từ dữ liệu mới nhất, 
-            trả lời câu hỏi của user một cách chính xác và hữu ích. Nếu ngữ cảnh không liên quan hoặc rỗng, 
-            dùng kiến thức chung của bạn nếu dữ liệu thiếu hãy suy luận theo kiến thức bạn đang có.
+            system_prompt = f"""Bạn là một chuyên gia về bóng đá, tên là FootBallGPT.
+Nhiệm vụ của bạn là trả lời câu hỏi của người dùng CHỈ dựa trên ngữ cảnh về bóng đá được cung cấp dưới đây.
 
-Ngữ cảnh từ DB:
+1.  Nếu ngữ cảnh có chứa thông tin liên quan, hãy sử dụng nó để trả lời một cách chính xác và hữu ích.
+2.  Nếu ngữ cảnh trống rỗng hoặc không chứa thông tin để trả lời câu hỏi (ví dụ: người dùng hỏi về chủ đề không phải bóng đá), bạn phải lịch sự từ chối và hướng dẫn họ quay lại chủ đề bóng đá. Tuyệt đối không dùng kiến thức chung của bạn.
+
+Ví dụ cách từ chối: "Xin lỗi, kiến thức của tôi chỉ giới hạn trong lĩnh vực bóng đá. Bạn có muốn hỏi tôi về một cầu thủ, trận đấu hay giải đấu nào không?"
+
+Ngữ cảnh từ database:
 {context}"""
             
             # Call OpenAI

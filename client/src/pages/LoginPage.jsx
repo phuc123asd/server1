@@ -17,11 +17,11 @@ export default function LoginPage({ onLogin }) {
   }
 
   const handleGoogleLogin = () => {
-    alert('Tính năng đăng nhập Google đang được phát triển. Hiện tại vui lòng nhập tên để tiếp tục.')
+      window.location.href = 'http://localhost:3000/login/google'
   }
 
   const handleGithubLogin = () => {
-    alert('Tính năng đăng nhập GitHub đang được phát triển. Hiện tại vui lòng nhập tên để tiếp tục.')
+    window.location.href = 'http://localhost:3000/login/github'
   }
 
   return (
@@ -29,7 +29,7 @@ export default function LoginPage({ onLogin }) {
       <div className="login-container">
         <div className="login-card">
           <div className="login-header">
-            <h1>🤖 Phúc GPT</h1>
+            <h1>FootBallGPT</h1>
             <p>Trợ lý AI thông minh của bạn</p>
           </div>
 

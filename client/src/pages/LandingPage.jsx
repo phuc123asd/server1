@@ -1,10 +1,12 @@
-import React from 'react'
+import React ,{ useState }from 'react'
 
 export default function LandingPage() {
-  const handleLogin = () => {
-    window.location.href = '/auth/replit_auth'
-  }
+  const [showOptions, setShowOptions] = useState(false)
 
+  const handleGoogle = () => {
+  window.location.href = "http://localhost:3000/login/google";
+}
+  const handleGithub = () => {window.location.href = 'http://localhost:3000/login/github'}
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
@@ -19,7 +21,7 @@ export default function LandingPage() {
           </div>
           
           <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 tracking-tight">
-            Phúc GPT
+            FootBallGPT
           </h1>
           
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto">
@@ -38,8 +40,9 @@ export default function LandingPage() {
             </div>
           </div>
 
+ {!showOptions ? (
           <button 
-            onClick={handleLogin}
+            onClick={() => setShowOptions(true)}
             className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-purple-600 bg-white rounded-full hover:bg-gray-50 transition-all duration-300 shadow-2xl hover:shadow-purple-500/50 hover:scale-105"
           >
             <span>Đăng nhập để bắt đầu</span>
@@ -47,6 +50,23 @@ export default function LandingPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </button>
+        ) : (
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+            <button
+              onClick={handleGoogle}
+              className="px-6 py-3 bg-white text-purple-600 rounded-full font-semibold hover:bg-gray-100 transition-colors shadow-md"
+            >
+              Đăng nhập với Google
+            </button>
+            <button
+              onClick={handleGithub}
+              className="px-6 py-3 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 transition-colors shadow-md"
+            >
+              Đăng nhập với GitHub
+            </button>
+          </div>
+        )}
+
 
           <p className="mt-6 text-white/70 text-sm">
             Hỗ trợ đăng nhập bằng Google, GitHub, X, Apple, và Email
