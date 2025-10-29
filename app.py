@@ -14,7 +14,7 @@ class Base(DeclarativeBase):
     pass
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='client/dist', static_url_path='')
 app.secret_key = os.environ.get("SESSION_SECRET")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 

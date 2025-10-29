@@ -17,15 +17,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend"
+args = "Phúc GPT"
 
 [[workflows.workflow]]
-name = "Frontend"
+name = "Phúc GPT"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "bash start.sh"
+args = "python main.py"
 waitForPort = 5000
 
 [workflows.workflow.metadata]

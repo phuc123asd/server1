@@ -24,7 +24,10 @@ def serve_react(path=''):
         return jsonify({'error': 'Not found'}), 404
     
     # Serve React app
-    return app.send_static_file('index.html') if app.static_folder else render_template('index.html')
+    try:
+        return app.send_static_file('index.html')
+    except:
+        return jsonify({'error': 'Frontend not built. Run: cd client && npm run build'}), 500
 
 # API: Get current user info
 @app.route('/api/user')
